@@ -9,4 +9,6 @@ $ ./main
 
 ### Graphic Samples:
 - Lines:
-    ![line](/images/lines.png)
+    ![line](images/lines.png)
+- Basic Grid:
+    ![graph](images/grid.png)
