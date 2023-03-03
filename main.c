@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -13,7 +14,7 @@
 #define WIDTH (16*SCREEN_FACTOR)
 #define HEIGHT (9*SCREEN_FACTOR)
 
-#define EPS 1e-1 // epsilon used for fractional comparison
+#define EPS 1e-4 // epsilon used for fractional comparison
                 
 #define ABS(x) ((x) > 0 ? (x) : -(x))
 
@@ -123,22 +124,39 @@ void graph_initialize(Canvas canvas, Coordinate center, size_t scale) {
 void compute_y_for_x(Canvas canvas, XYEquation eq, int32_t px, Coordinate offset, size_t scale, 
         size_t line_width, RGBAPixel color) {
 
-    float cx = get_x_coordinate_from_pixel(px, offset.X, scale);
+    float cx_minus = get_x_coordinate_from_pixel(px - 1, offset.X, scale);
+    // float cx = get_x_coordinate_from_pixel(px, offset.X, scale);
+    float cx_plus = get_x_coordinate_from_pixel(px + 1, offset.X, scale);
 
-    XEquation y_eq = get_y_equation_from_xy(eq, cx);
+    XEquation y_minus_eq = get_y_equation_from_xy(eq, cx_minus);
+    // XEquation y_eq = get_y_equation_from_xy(eq, cx);
+    XEquation y_plus_eq = get_y_equation_from_xy(eq, cx_plus);
 
     // for (size_t i = 0; i < y_eq.n; ++i) {
     //     LOG("(%f, %f)\n", y_eq.terms[i].cf, y_eq.terms[i].e);
     // }
 
     for (size_t py = 0; py < canvas.height; ++py) {
-        float cy = get_y_coordinate_from_pixel(py, offset.Y, scale);
-        float f_y = evaluate_x_equation(y_eq, cy);
+        float cy_minus = get_y_coordinate_from_pixel(py - 1, offset.Y, scale);
+        float cy_plus = get_y_coordinate_from_pixel(py + 1, offset.Y, scale);
 
-        if (ABS(f_y - 0.f) <= EPS) plot_pixel(canvas, (Coordinate){px, py}, line_width, color);
+        float vert[4] = {
+            evaluate_x_equation(y_minus_eq, cy_minus), 
+            evaluate_x_equation(y_minus_eq, cy_plus),
+            evaluate_x_equation(y_plus_eq, cy_minus), 
+            evaluate_x_equation(y_plus_eq, cy_plus)
+        };
+        
+        if (vert[0] * vert[2] <= EPS  || vert[1] * vert[3] <= EPS)
+            plot_pixel(canvas, (Coordinate){px, py}, line_width, color);
+
+
+        // if (ABS(f_y - 0.f) <= EPS) plot_pixel(canvas, (Coordinate){px, py}, line_width, color);
     }
 
-    destroy_x_equation(y_eq);
+    // destroy_x_equation(y_eq);
+    destroy_x_equation(y_minus_eq);
+    destroy_x_equation(y_plus_eq);
 }
 
 void sketch_graph_for_equation(Canvas canvas, XYEquation eq, Coordinate offset, size_t scale,
@@ -148,19 +166,57 @@ void sketch_graph_for_equation(Canvas canvas, XYEquation eq, Coordinate offset, 
         compute_y_for_x(canvas, eq, px, offset, scale, line_width, color);
 }
 
+void draw_circle_at_origin(Coordinate center, size_t scale) {
+    XYEquation eq;
+    Triple terms[3] = {{1, .x=2, .y=0}, {1, .x=0, .y=2}, {-100, .x=0, .y=0}};
+    eq.terms = terms;
+    eq.n = 3;
 
-int main(void) {
-    size_t scale = HEIGHT / 25;
-    Coordinate center = {5, 5};
-    graph_initialize(canvas, center, scale);
+    const RGBAPixel GREEN = {0, 150, 0, 255};
+    sketch_graph_for_equation(canvas, eq, center, scale, 3, GREEN);
+}
 
+void draw_circle(Coordinate center, size_t scale) {
+    XYEquation eq;
+    Triple terms[5] = {{1.f/100.f, .x=2, .y=0}, {1.f/100.f, .x=0, .y=2}, 
+        {-1, .x=0, .y=0}, {-1.f/10.f, .x=1, .y=0}, {-1.f/10.f, .x=0, .y=1}};
+    eq.terms = terms;
+    eq.n = 5;
+
+    const RGBAPixel GREEN = {0, 150, 0, 255};
+    sketch_graph_for_equation(canvas, eq, center, scale, 3, GREEN);
+}
+
+void draw_quadratic_equation(Coordinate center, size_t scale) {
     XYEquation eq;
     Triple terms[2] = {{1, .x=0, .y=1}, {-1, .x=2, .y=0}};
     eq.terms = terms;
     eq.n = 2;
 
     const RGBAPixel BLUE = {0, 0, 255, 255};
+
     sketch_graph_for_equation(canvas, eq, center, scale, 1, BLUE);
+}
+
+void draw_ellipse(Coordinate center, size_t scale) {
+    XYEquation eq;
+    Triple terms[3] = {{1.f/36.f, .x=0, .y=2}, {1.f/100.f, .x=2, .y=0}, {-1, .x=0, .y=0}};
+    eq.terms = terms;
+    eq.n = 3;
+
+    const RGBAPixel RED = {255, 0, 0, 255};
+    sketch_graph_for_equation(canvas, eq, center, scale, 1, RED);
+}
+
+
+int main(void) {
+    size_t scale = HEIGHT / 25;
+    Coordinate center = {5, 5};
+    graph_initialize(canvas, center, scale);
+
+    draw_circle(center, scale);
+    draw_ellipse(center, scale);
+
 
     save_canvas_as_png(canvas, "images\\test.png");
     return 0;
