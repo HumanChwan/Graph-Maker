@@ -1,3 +1,5 @@
-main.exe
+*.exe
 main
+sdl_console
 *.o
+SDL2-devel-2.26.3-mingw.zip

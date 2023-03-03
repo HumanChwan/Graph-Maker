@@ -1,0 +1,1 @@
+-I./thirdparty/SDL2/include/
