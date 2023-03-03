@@ -1,3 +1,6 @@
+#ifndef GRAPH_MAKER_GRAPHICS_
+#define GRAPH_MAKER_GRAPHICS_
+
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -26,6 +29,9 @@ RGBAPixel blend_color(RGBAPixel back, RGBAPixel fore);
 bool valid_coordinate(Canvas canvas, Coordinate P);
 
 // Canvas methods
+void plot_pixel(Canvas canvas, Coordinate P, size_t line_width, RGBAPixel color);
 void fill_canvas(Canvas canvas, RGBAPixel color);
 void draw_line(Canvas canvas, Coordinate A, Coordinate B, size_t line_width, RGBAPixel color);
 void draw_filled_circle(Canvas canvas, Coordinate P, size_t radius, RGBAPixel color);
+
+#endif // GRAPH_MAKER_GRAPHICS_

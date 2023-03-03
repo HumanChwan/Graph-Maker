@@ -8,7 +8,9 @@ $ ./main
 ```
 
 ### Graphic Samples:
-- Lines:
-    ![line](images/lines.png)
+- $y = x^2$  
+    ![y=x^2](images/quad.png)
 - Basic Grid:
     ![graph](images/grid.png)
+- Lines:
+    ![line](images/lines.png)
