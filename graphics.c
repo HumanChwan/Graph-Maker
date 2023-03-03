@@ -7,21 +7,24 @@
 #define LOG(...)
 #endif
 
-
-void plot_pixel(Canvas canvas, Coordinate P, size_t line_width, RGBAPixel color) {
-    if (valid_coordinate(canvas, P))
-        canvas.pixels[P.Y * canvas.stride + P.X] = color;
-
-    int16_t radius = line_width / 2;
-    for (int16_t y = -radius; y <= radius; ++y) {
-        for (int16_t x = -radius; x <= radius; ++x) {
-            if (x * x + y * y <= radius * radius) {
+void draw_filled_circle(Canvas canvas, Coordinate P, size_t radius, RGBAPixel color) {
+    int16_t r = radius;
+    for (int16_t y = -r; y <= r; ++y) {
+        for (int16_t x = -r; x <= r; ++x) {
+            if (x * x + y * y <= r * r) {
                 Coordinate c = {x + P.X, y + P.Y};
                 if (valid_coordinate(canvas, c))
                     canvas.pixels[c.Y * canvas.stride + c.X] = color;
             }
         }
     }
+}
+
+void plot_pixel(Canvas canvas, Coordinate P, size_t line_width, RGBAPixel color) {
+    if (valid_coordinate(canvas, P))
+        canvas.pixels[P.Y * canvas.stride + P.X] = color;
+
+    draw_filled_circle(canvas, P, line_width / 2, color);
 }
 
 void draw_line_with_g_slope(Canvas canvas, Coordinate A, Coordinate B, size_t line_width, RGBAPixel color) {

@@ -35,8 +35,6 @@ static Canvas canvas = {
     .pixels=pixels
 };
 
-const RGBAPixel BLACK = {0, 0, 0, 255};
-const RGBAPixel WHITE = {255, 255, 255, 255};
 const RGBAPixel HardGray = {200, 200, 200, 255};
 const RGBAPixel SoftGray = {240, 240, 240, 255};
 
@@ -62,39 +60,44 @@ Coordinate coordinate_to_pixel_location(Coordinate P, size_t scale, Coordinate o
 
 // scale = PIXELS PER UNIT 
 void graph_initialize(Canvas canvas, Coordinate center, size_t scale) {
+    const RGBAPixel BLACK = {0, 0, 0, 255};
+    const RGBAPixel WHITE = {255, 255, 255, 255};
+
     fill_canvas(canvas, WHITE);
+
     // draw axes
     Coordinate origin_pixel = _coordinate_to_pixel_location(0, 0, scale, center);
-    Coordinate center_pixel = coordinate_to_pixel_location(center, scale, center);
-    LOG("Origin: {%d, %d}, Scale: %zu\n", origin_pixel.X, origin_pixel.Y, scale);
-    LOG("Center: {%d, %d}\n", center_pixel.X, center_pixel.Y);
+    // Coordinate center_pixel = coordinate_to_pixel_location(center, scale, center);
 
     float frac_increment = (float)scale / 10.f;
-    for (int x = origin_pixel.X % scale; x < WIDTH; x += scale) {
+    for (size_t x = origin_pixel.X % scale; x < canvas.width; x += scale) {
         for (float x0 = x - scale + frac_increment; x0 < x; x0 += frac_increment)
             draw_line(canvas, (Coordinate){.X = x0, .Y = 0}, (Coordinate){
-                    .X = x0, .Y = HEIGHT - 1 }, 1, SoftGray);
+                    .X = x0, .Y = canvas.height - 1 }, 1, SoftGray);
     }
 
-    for (int y = origin_pixel.Y % scale; y < HEIGHT; y += scale) {
+    for (size_t y = origin_pixel.Y % scale; y < canvas.height; y += scale) {
         for (float y0 = y - scale + frac_increment; y0 < y; y0 += frac_increment)
             draw_line(canvas, (Coordinate){.X = 0, .Y = y0}, (Coordinate){
-                    .X = WIDTH - 1, .Y = y0 }, 1, SoftGray);
+                    .X = canvas.width - 1, .Y = y0 }, 1, SoftGray);
 
         draw_line(canvas, (Coordinate){.X = 0, .Y = y}, (Coordinate){
-                .X = WIDTH - 1, .Y = y }, 2, HardGray);
+                .X = canvas.width - 1, .Y = y }, 2, HardGray);
     }
-    for (int x = origin_pixel.X % scale; x < WIDTH; x += scale) {
+    for (size_t x = origin_pixel.X % scale; x < canvas.width; x += scale) {
         draw_line(canvas, (Coordinate){.X = x, .Y = 0}, (Coordinate){
-                .X = x, .Y = HEIGHT - 1 }, 2, HardGray);
+                .X = x, .Y = canvas.height - 1 }, 2, HardGray);
     }
 
     // X-axis
     draw_line(canvas, (Coordinate){.X = 0, .Y = origin_pixel.Y}, (Coordinate){
-            .X = WIDTH - 1, .Y = origin_pixel.Y }, 3, BLACK);
+            .X = canvas.width - 1, .Y = origin_pixel.Y }, 3, BLACK);
     // Y-axis
     draw_line(canvas, (Coordinate){.X = origin_pixel.X, .Y = 0}, (Coordinate){
-            .X = origin_pixel.X, .Y = HEIGHT - 1 }, 3, BLACK);
+            .X = origin_pixel.X, .Y = canvas.height - 1 }, 3, BLACK);
+
+    // origin
+    draw_filled_circle(canvas, origin_pixel, 5, BLACK);
 } 
 
 int main(void) {

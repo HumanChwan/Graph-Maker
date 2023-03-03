@@ -27,4 +27,5 @@ bool valid_coordinate(Canvas canvas, Coordinate P);
 
 // Canvas methods
 void fill_canvas(Canvas canvas, RGBAPixel color);
-void draw_line(Canvas canvas, Coordinate A, Coordinate B, size_t line_width, RGBAPixel);
+void draw_line(Canvas canvas, Coordinate A, Coordinate B, size_t line_width, RGBAPixel color);
+void draw_filled_circle(Canvas canvas, Coordinate P, size_t radius, RGBAPixel color);
